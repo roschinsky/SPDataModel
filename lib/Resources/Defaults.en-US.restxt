@@ -1,0 +1,9 @@
+; Default list field/column names
+title=Title
+created=Created
+author=Created by
+modified=Modified
+editor=Modified by
+
+; Default list names
+ual=User Infomation List

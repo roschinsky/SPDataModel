@@ -1,0 +1,14 @@
+{
+    "defaultNames": 
+    {
+        "title": "Title",
+        "created": "Created",
+        "author": "Created by",
+        "modified": "Modified",
+        "editor": "Modified by"
+    },
+    "defaultListNames":
+    {
+        "ual": "User Infomation List"
+    }
+}

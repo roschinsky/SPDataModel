@@ -1,0 +1,14 @@
+{
+    "fdn_title": "Title",
+    "fin_title": "title",
+    "fdn_author": "Created by",
+    "fin_author": "author",
+    "fdn_created": "Created",
+    "fin_created": "created",
+    "fdn_editor": "Modified by",
+    "fin_editor": "editor",
+    "fdn_modified": "Modified",
+    "fin_modified": "modified",
+    "ldn_ual": "User Infomation List",
+    "lin_ual": "user"
+}

@@ -1,0 +1,28 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net5.0</TargetFramework>
+  </PropertyGroup>
+
+<!--
+  <ItemGroup>
+    <None Remove=".\Resources\Model.de-DE.restxt" />
+    <None Remove=".\Resources\Model.en-US.restxt" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include=".\Resources\Model.de-DE.restxt" ManifestResourceName="Model.de-DE" />
+    <EmbeddedResource Include=".\Resources\Model.en-US.restxt" ManifestResourceName="Model.en-US" />
+  </ItemGroup>
+-->
+
+  <ItemGroup>
+    <Content Include="Resources\*.reson">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>  
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
+  </ItemGroup>
+
+</Project>
