@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using TRoschinsky.SPDataModel.Lib;
 using TRoschinsky.SPDataModel.Lib.FieldTypes;
+using TRoschinsky.SPDataModel.Lib.ModelGenerators;
 
 namespace cmd
 {
@@ -24,7 +25,7 @@ namespace cmd
             entityToAdd.AddField(new FieldText("OU", "title"));
             entityToAdd.AddField(new FieldUser("Gruppe", "orgGroup", true));
             entityToAdd.AddField(new FieldUser("FK", "orgManager", false) { IsMultiLookup = true });
-            model.AddEntity(entityToAdd); 
+            model.AddEntity(entityToAdd);
 
             entityToAdd = new Entity() { DisplayName = "Umfrage", InternalName = "Survey" };
             entityToAdd.AddField(new FieldDateTime("Durchgeführt am", "conductedOn"));
@@ -37,7 +38,7 @@ namespace cmd
             entityToAdd.AddField(new FieldMultiLineText("Fragentext", "question"));
             entityToAdd.AddField(new FieldLookup("Umfrage", new Relation(entityToAdd, model.GetEntityByName("Umfrage"))));
             model.AddEntity(entityToAdd);
-            
+
             entityToAdd = new Entity() { DisplayName = "Ergebnis", InternalName = "Result" };
             entityToAdd.AddField(new FieldText("Ergebnis", "title"));
             entityToAdd.AddField(new FieldNumber("ErgebnisWert", "resultValue"));
@@ -68,23 +69,39 @@ namespace cmd
 
         private static void OutputModel(Model model, bool verbose)
         {
-            Console.WriteLine("*** Summary for data model '{0}' (created {1:d}) ***", model.Name, model.CreatedOn);
-            Console.WriteLine("--------------------------------------------------------------------");
-            foreach (Entity entity in model.Entities)
+            try
             {
-                if(!verbose)
+                
+                Console.WriteLine("*** Summary for data model '{0}' (created {1:d}) ***", model.Name, model.CreatedOn);
+                Console.WriteLine("--------------------------------------------------------------------");
+                foreach (Entity entity in model.Entities)
                 {
-                    Console.WriteLine("- " + entity);
-                }
-                else
-                {
-                    Console.WriteLine("--| {0} ({1}) |--", entity.DisplayName, entity.InternalName);
-                    foreach(Field field in entity.Fields)
+                    if (!verbose)
                     {
-                        Console.WriteLine("\t- {0}", field);
+                        Console.WriteLine("- " + entity);
                     }
-                    Console.WriteLine();
+                    else
+                    {
+                        Console.WriteLine("--| {0} ({1}) |--", entity.DisplayName, entity.InternalName);
+                        foreach (Field field in entity.Fields)
+                        {
+                            Console.WriteLine("\t- {0}", field);
+                        }
+                        Console.WriteLine();
+                    }
                 }
+
+                Console.WriteLine(Environment.NewLine);
+                
+
+                DrawioTextList generator1 = new DrawioTextList(model, String.Format("Convert {0}", model.Name));
+
+                Console.WriteLine("----------| {0}", generator1);
+                Console.WriteLine(generator1.Output);
+            }
+            catch (System.Exception ex)
+            {
+                Console.WriteLine("Output failed due to: {0}", ex.Message);
             }
         }
     }
