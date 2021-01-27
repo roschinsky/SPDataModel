@@ -10,7 +10,7 @@
             "request": "launch",
             "preLaunchTask": "build",
             // If you have changed target frameworks, make sure to update the program path.
-            "program": "${workspaceFolder}/cmd/bin/Debug/net5.0/cmd.dll",
+            "program": "${workspaceFolder}/cmd/bin/Debug/net5.0/SPDataModel.dll",
             "args": [],
             "cwd": "${workspaceFolder}/cmd",
             // For more information about the 'console' field, see https://aka.ms/VSCode-CS-LaunchJson-Console
