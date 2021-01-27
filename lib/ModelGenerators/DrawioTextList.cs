@@ -20,22 +20,22 @@ namespace TRoschinsky.SPDataModel.Lib.ModelGenerators
         {
             string lb = Environment.NewLine;
             StringBuilder outputSb = new StringBuilder();
-            foreach (Entity entiy in Input.Entities)
+            foreach (Entity entity in Input.Entities)
             {
                 try
                 {
-                    if ((entiy.IsHidden && Settings.ShowHiddenLists) || (entiy.IsSystem && Settings.ShowSystemLists) || (!entiy.IsHidden && !entiy.IsSystem))
+                    if ((entity.IsHidden && Settings.ShowHiddenLists) || (entity.IsSystem && Settings.ShowSystemLists) || (!entity.IsHidden && !entity.IsSystem))
                     {
                         outputSb.Append(String.Format("{0}{1}",
                             Settings.UseDisplayNames && Settings.UseInternalNames ?
-                                (entiy.DisplayName + " [" + entiy.InternalName + "]") :
-                                (Settings.UseDisplayNames ? entiy.DisplayName : entiy.InternalName),
+                                (entity.DisplayName + " [" + entity.InternalName + "]") :
+                                (Settings.UseDisplayNames ? entity.DisplayName : entity.InternalName),
                             lb));
 
                         bool addedPrivateFields = false;
 
                         List<Field> fieldList = new List<Field>();
-                        fieldList.AddRange(entiy.Fields);
+                        fieldList.AddRange(entity.Fields);
 
                         foreach (Field field in fieldList.FindAll(f => f.IsHidden || f.IsSystem))
                         {
