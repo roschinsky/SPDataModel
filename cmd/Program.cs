@@ -94,10 +94,16 @@ namespace cmd
                 Console.WriteLine(Environment.NewLine);
                 
 
-                DrawioTextList generator1 = new DrawioTextList(model, String.Format("Convert {0}", model.Name));
-
+                ModelGenerator generator1 = new DrawioTextList(model, String.Format("Convert {0}", model.Name));
                 Console.WriteLine("----------| {0}", generator1);
                 Console.WriteLine(generator1.Output);
+                Console.WriteLine("-----------------------------------------");
+
+                ModelGenerator generator2 = new DrawioTextDiagram(model, String.Format("Convert {0} ", model.Name));
+                Console.WriteLine("----------| {0}", generator2);
+                Console.WriteLine(generator2.Output);
+                Console.WriteLine("-----------------------------------------");
+
             }
             catch (System.Exception ex)
             {

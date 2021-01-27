@@ -1,6 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
+    <AssemblyName>SPDataModelLib</AssemblyName>
     <TargetFramework>net5.0</TargetFramework>
   </PropertyGroup>
 
