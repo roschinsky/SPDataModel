@@ -127,7 +127,10 @@ $field.SelectionMode = [Microsoft.SharePoint.SPFieldUserSelectionMode]::PeopleOn
 $field.Update()
 
 # ------------ Relations..
-
+$lkup = $lst2_02.Fields[$lst2_02.Fields.AddLookup("lkupRelTwoOnes", $lst2_01.ID, $false)]
+$lkup.LookupField = "Title"
+$lkup.Title = "Relevante Zwei-Einser"
+$lkup.Update()
 # ------------ Sort columns...
 #  - - - - - - List "2.1"
 $reorderCt = $lst2_01.ContentTypes[0]
