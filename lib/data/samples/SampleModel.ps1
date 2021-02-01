@@ -130,6 +130,7 @@ $field.Update()
 $lkup = $lst2_02.Fields[$lst2_02.Fields.AddLookup("lkupRelTwoOnes", $lst2_01.ID, $false)]
 $lkup.LookupField = "Title"
 $lkup.Title = "Relevante Zwei-Einser"
+$lkup.AllowMultipleValues = $true
 $lkup.Update()
 # ------------ Sort columns...
 #  - - - - - - List "2.1"
