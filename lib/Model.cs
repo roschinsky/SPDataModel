@@ -2,9 +2,6 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
-using System.Text;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using TRoschinsky.SPDataModel.Lib.FieldTypes;
 
 namespace TRoschinsky.SPDataModel.Lib

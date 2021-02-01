@@ -2,8 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
-using Newtonsoft.Json.Linq;
-
+using System.Text.Json;
 
 namespace TRoschinsky.SPDataModel.Lib
 {
@@ -30,10 +29,10 @@ namespace TRoschinsky.SPDataModel.Lib
                 }
 
                 var customResourceJsonString = File.ReadAllText(customResourcePath);
-                var customResourceJsonObject = JObject.Parse(customResourceJsonString);
-                foreach(var sub in customResourceJsonObject)
+                var customResourceJsonObject = JsonDocument.Parse(customResourceJsonString);
+                foreach(var sub in customResourceJsonObject.RootElement.EnumerateObject())
                 {
-                    result.Add(sub.Key, sub.Value.ToString());
+                    result.Add(sub.Name, sub.Value.ToString());
                 }
             }
             catch (System.Exception ex)
@@ -43,4 +42,6 @@ namespace TRoschinsky.SPDataModel.Lib
             return result;
         }
     }
+
+    
 }
