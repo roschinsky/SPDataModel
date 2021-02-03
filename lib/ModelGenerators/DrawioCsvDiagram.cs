@@ -6,31 +6,22 @@ namespace TRoschinsky.SPDataModel.Lib.ModelGenerators
 {
     public class DrawioCsvDiagram : ModelGenerator
     {
-        private const string baseTemplate = ""; 
-
-        /*
-            ## SPDataModel ...styles and layout...
-            # label: <b>%name%</b><br><i style="color:dimgray;">%desc%</i>
-            # style: rounded=1;whiteSpace=wrap;html=1;strokeColor=#BABABA;gradientColor=%fill%;fontStyle=1;
-            # namespace: csvimport-
-            # connect: {"from":"lkup1", "to":"eid", "invert":true, "label":"lkup", "style":"endArrow=block;endFill=1;edgeStyle=entityRelationEdgeStyle;"}
-            # connect: {"from":"lkupN", "to":"eid", "invert":true, "label":"lkup", "style":"endArrow=block;endFill=1;edgeStyle=entityRelationEdgeStyle;startArrow=block;startFill=0;"}
-            # width: auto
-            # height: auto
-            # padding: 15
-            # ignore: eid,lkup1,lkupN
-            # nodespacing: 60
-            # levelspacing: 80
-            # edgespacing: 60
-            # layout: auto
-            ## SPDataModel ...CSV based model...
-            eid,name,desc,lkup,fill,lkup1,lkupN
-            1,Test 1,I like it!,lkupToNext,#FEFEFE,,
-            2,Am I alive?,lkupToNext,#fff2cc,#FEFEFE,1,
-            3,Yes,#d5e8d4,lkupToNext,#FEFEFE,,2
-            4,No,#f8cecc,lkupToNext,#b85450,,2 
-            5,,#fff2cc,lkupToNext,#FEFEFE,3,
-        */
+        private const string baseTemplate =
+            "# label: <a href=\"%url%\"<b>%name%</b><br><i style=\"color:dimgray;font-size:smaller;\">%desc%</i></a>\n" +
+            "# style: rounded=1;whiteSpace=wrap;html=1;strokeColor=#BABABA;gradientColor=%fill%;fontStyle=1;\n" +
+            "# namespace: csvimport-\n" +
+            "# connect: {\"from\":\"lkup1\", \"to\":\"eid\", \"invert\":false, \"label\":\"1:n\", \"style\":\"endArrow=block;endFill=1;edgeStyle=orthogonalEdgeStyle;\"}\n" +
+            "# connect: {\"from\":\"lkupN\", \"to\":\"eid\", \"invert\":false, \"label\":\"n:m\", \"style\":\"endArrow=block;endFill=1;edgeStyle=orthogonalEdgeStyle;startArrow=block;startFill=0;\"}\n" +
+            "# width: auto\n" +
+            "# height: auto\n" +
+            "# padding: 10\n" +
+            "# ignore: eid,lkup1,lkupN\n" +
+            "# nodespacing: 30\n" +
+            "# levelspacing: 20\n" +
+            "# edgespacing: 40\n" +
+            "# layout: auto\n" +
+            "## SPDataModel ...CSV based model...\n" +
+            "eid,name,desc,url,fill,lkup1,lkupN";
 
         public DrawioCsvDiagram(Model inputModel, string generatorName) : base(inputModel)
         {
@@ -45,7 +36,15 @@ namespace TRoschinsky.SPDataModel.Lib.ModelGenerators
         {
             string lb = Environment.NewLine;
             StringBuilder outputSb = new StringBuilder();
-            outputSb.Append(String.Format(";Data model '{0}', created on {1:d}:{2}", Input.Name, Input.CreatedOn, lb));
+            outputSb.Append(String.Format("## SPDataModel '{0}', created on {1:d} ...styles and layout...{2}", Input.Name, Input.CreatedOn, lb));
+            outputSb.Append(baseTemplate);
+            outputSb.Append(lb);
+
+            Dictionary<string, int> indexedEntities = new Dictionary<string, int>();
+            for (int i = 0; i < Input.Entities.Count; i++)
+            {
+                indexedEntities.Add(Input.Entities[i].InternalName, i + 1);
+            }
 
             foreach (Entity entity in Input.Entities)
             {
@@ -53,18 +52,39 @@ namespace TRoschinsky.SPDataModel.Lib.ModelGenerators
                 {
                     if ((entity.IsHidden && Settings.ShowHiddenLists) || (entity.IsSystem && Settings.ShowSystemLists) || (!entity.IsHidden && !entity.IsSystem))
                     {
-                        foreach(Relation relation in entity.Relations)
+                        string lkup1s = String.Empty;
+                        string lkupNs = String.Empty;
+
+                        foreach (Relation relation in entity.Relations)
                         {
-                        outputSb.Append(String.Format("{0}->{1}{2}",
-                            Settings.UseDisplayNames ? entity.DisplayName : entity.InternalName,
-                            Settings.UseDisplayNames ? relation.LookupToEntity.DisplayName : relation.LookupToEntity.InternalName,
-                            lb));
+                            if (relation.IsMultiLookup)
+                            {
+                                lkupNs += indexedEntities[relation.LookupToEntity.InternalName] + ",";
+                            }
+                            else
+                            {
+                                lkup1s += indexedEntities[relation.LookupToEntity.InternalName] + ",";
+                            }
                         }
+
+                        lkup1s = lkup1s.TrimEnd(',');
+                        lkupNs = lkupNs.TrimEnd(',');
+
+                        // eid,name,desc,url,fill,lkup1,lkupN
+                        outputSb.Append(String.Format("{0},{1},{2},{3},{4},{5},{6}{7}",
+                            indexedEntities[entity.InternalName],
+                            Settings.UseDisplayNames ? entity.DisplayName : entity.InternalName,
+                            entity.Description,
+                            entity.Url != null ? entity.Url : "#",
+                            entity.IsUil ? "#FFE599" : (entity.IsSystem || entity.IsHidden ? "#FFCCE6" : "#CCCCCC" ),
+                            lkup1s.Contains(',') ? String.Concat("\"", lkup1s, "\"") : lkup1s,
+                            lkupNs.Contains(',') ? String.Concat("\"", lkupNs, "\"") : lkupNs,
+                            lb));
                     }
                 }
                 catch (Exception ex)
                 {
-                    outputSb.Append(String.Format(";Error rendering entity '{0}': {1}{2}", entity.InternalName, ex.Message, lb));
+                    outputSb.Append(String.Format("##Error rendering entity '{0}': {1}{2}", entity.InternalName, ex.Message, lb));
                 }
             }
             Output = outputSb.ToString();
