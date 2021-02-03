@@ -7,9 +7,12 @@ namespace TRoschinsky.SPDataModel.Lib
     public class Entity
     {
         public string DisplayName { get; set; } = "Unknown";
+        public string Description { get; set; } = String.Empty;
         public string InternalName { get; set; } = "NoName";
+        public Uri Url { get; set; }
         public bool IsHidden { get; set; } = false;
         public bool IsSystem { get; set; } = false;
+        public bool IsUil { get; set; } = false;
 
         public Field[] Fields { get { return fields.ToArray(); } }
         private List<Field> fields { get; set; } = new List<Field>();
@@ -26,6 +29,14 @@ namespace TRoschinsky.SPDataModel.Lib
         {
             DisplayName = displayName;
             InternalName = internalName;
+            Initialize();
+        }
+
+        public Entity(string displayName, string internalName, string description)
+        {
+            DisplayName = displayName;
+            InternalName = internalName;
+            Description = description;
             Initialize();
         }
 
