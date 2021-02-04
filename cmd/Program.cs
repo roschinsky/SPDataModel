@@ -51,7 +51,7 @@ namespace cmd
             entityToAdd.AddField(new FieldMultiChoice("Status", "statusCode", new string[] { "Geplant", "Verworfen", "In Bearbeitung", "Abgeschlossen" }));
             entityToAdd.AddField(new FieldDateTime("Geplante Umsetzung", "dueDateInitial"));
             entityToAdd.AddField(new FieldUser("Verantwortlich", "responsible", false));
-            entityToAdd.AddField(new FieldLookup("Frage", new Relation(entityToAdd, model.GetEntityByName("Ergebnis"))));
+            entityToAdd.AddField(new FieldLookup("Ergebnis", new Relation(entityToAdd, model.GetEntityByName("Ergebnis"))));
             entityToAdd.AddField(new FieldLookup("OU", new Relation(entityToAdd, model.GetEntityByName("Organisation"))));
             model.AddEntity(entityToAdd);
 
@@ -102,6 +102,11 @@ namespace cmd
                 ModelGenerator generator2 = new DrawioTextDiagram(model, String.Format("Convert {0} ", model.Name));
                 Console.WriteLine("----------| {0}", generator2);
                 Console.WriteLine(generator2.Output);
+                Console.WriteLine("-----------------------------------------");
+
+                ModelGenerator generator3 = new DrawioCsvDiagram(model, String.Format("Convert {0} ", model.Name));
+                Console.WriteLine("----------| {0}", generator3);
+                Console.WriteLine(generator3.Output);
                 Console.WriteLine("-----------------------------------------");
 
             }

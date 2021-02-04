@@ -48,12 +48,13 @@ namespace TRoschinsky.SPDataModel.Lib
             }
 
             // add default list
-            if(entities.Find(e => e.InternalName == customRessources["lin_ual"]) == null)
+            if(entities.Find(e => e.InternalName == customRessources["lin_uil"]) == null)
             {
-                Entity ual = new Entity(customRessources["ldn_ual"] , customRessources["lin_ual"]);
-                ual.IsSystem = true;
-                ual.IsHidden = true;
-                Entities.Add(ual);
+                Entity uil = new Entity(customRessources["ldn_uil"] , customRessources["lin_uil"]);
+                uil.IsSystem = true;
+                uil.IsHidden = true;
+                uil.IsUil = true;
+                Entities.Add(uil);
             }
         }
 
