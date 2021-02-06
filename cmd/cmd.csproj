@@ -4,6 +4,10 @@
     <ProjectReference Include="..\lib\lib.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <PackageReference Include="System.CommandLine" Version="2.0.0-beta1.20574.7" />
+  </ItemGroup>
+
   <PropertyGroup>
     <AssemblyName>SPDataModel</AssemblyName>
     <OutputType>Exe</OutputType>
