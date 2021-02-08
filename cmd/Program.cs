@@ -49,20 +49,27 @@ namespace TRoschinsky.SPDataModel.cmd
 
             rootCommand.Handler = CommandHandler.Create<bool, bool, string, string, string, string>((interactive, list, inputType, outputType, input, output) =>
             {
-                if (!interactive)
+                try
                 {
-                    rootCommand.Invoke("-h");
-                    Console.WriteLine($"The value for --interactive is: {interactive}");
-                    Console.WriteLine($"The value for --list is: {list}");
-                    Console.WriteLine($"The value for --inputType is: {inputType}");
-                    //Console.WriteLine($"The value for --input is: {input?.FullName ?? "null"}");
-                    Console.WriteLine($"The value for --input is: {input}");
-                    Console.WriteLine($"The value for --outputType is: {outputType}");
-                    Console.WriteLine($"The value for --output is: {output}");
+                    if (!interactive)
+                    {
+                        rootCommand.Invoke("-h");
+                        Console.WriteLine($"The value for --interactive is: {interactive}");
+                        Console.WriteLine($"The value for --list is: {list}");
+                        Console.WriteLine($"The value for --inputType is: {inputType}");
+                        //Console.WriteLine($"The value for --input is: {input?.FullName ?? "null"}");
+                        Console.WriteLine($"The value for --input is: {input}");
+                        Console.WriteLine($"The value for --outputType is: {outputType}");
+                        Console.WriteLine($"The value for --output is: {output}");
+                    }
+                    else
+                    {
+                        RunInteractiveSession();
+                    }
                 }
-                else
+                catch (Exception ex)
                 {
-                    RunInteractiveSession();
+                    Console.WriteLine("An error occurred: {0}.", ex.Message);
                 }
             });
 
@@ -72,31 +79,32 @@ namespace TRoschinsky.SPDataModel.cmd
         private static void RunInteractiveSession()
         {
             List<Model> models = new List<Model>();
-            string headlineBase = "---| 'SharePoint Data Model' Interactive Console |- {0} ---";
-            string breadcrumb = String.Empty;
+            string lb = Environment.NewLine;
+            string headlineBase = "Commands in this context:";
+            string prompt = String.Empty;
             int selectedModel = 0;
 
             ConsoleKey key = new ConsoleKey();
-            while (key != ConsoleKey.Q)
+            while (key != ConsoleKey.Q && key != ConsoleKey.Backspace)
             {
-                breadcrumb = "/..........";
-                Console.Clear();
-                Console.WriteLine(headlineBase, breadcrumb);
+                PrintInteractiveMenu(headlineBase, selectedModel, models);
                 switch (key)
                 {
                     // Create model
                     case ConsoleKey.C:
-                        Console.WriteLine("*** not implemented ***");
+                        while (key != ConsoleKey.Q && key != ConsoleKey.Backspace)
+                        {
+                            PrintInteractiveMenuCreate(headlineBase);
+                            key = Console.ReadKey().Key;
+                        }
                         break;
 
                     // Create model
                     case ConsoleKey.A:
-                        while (key != ConsoleKey.Q)
+                        while (key != ConsoleKey.Q && key != ConsoleKey.Backspace)
                         {
-                            breadcrumb = "/Add.......";
-                            Console.Clear();
-                            Console.WriteLine(headlineBase, breadcrumb);
-                            switch(key)
+                            PrintInteractiveMenuAdd(headlineBase);
+                            switch (key)
                             {
                                 case ConsoleKey.NumPad1:
                                 case ConsoleKey.D1:
@@ -107,36 +115,35 @@ namespace TRoschinsky.SPDataModel.cmd
                                     models.Add(SampleModels.GetSampleModel(SampleModels.SampleModelType.OrderProcess));
                                     break;
                             }
-                            Console.WriteLine("Choose an option to proceed [sample1, sample2, Quit]: ");
                             key = Console.ReadKey().Key;
                         }
                         break;
 
                     // List models
                     case ConsoleKey.L:
-                        foreach(Model model in models)
+                        Console.WriteLine();
+                        Console.WriteLine("--------------------------------------");
+                        foreach (Model model in models)
                         {
-                            Console.WriteLine("\t- {0}", model);
+                            Console.WriteLine("\t- {0}", model.ToString());
                         }
+                        Console.ReadKey();
                         break;
-
 
                     // Output models
                     case ConsoleKey.O:
-                        while (key != ConsoleKey.Q)
+                        while (key != ConsoleKey.Q && key != ConsoleKey.Backspace)
                         {
-                            breadcrumb = "/Output....";
-                            Console.Clear();
-                            Console.WriteLine(headlineBase, breadcrumb);
-                            switch(key)
+                            PrintInteractiveMenuOutput(headlineBase);
+                            switch (key)
                             {
                                 case ConsoleKey.M:
-                                    if(models.Count > 0)
+                                    if (models.Count > 0)
                                     {
                                         char inputChar = '?';
-                                        while(!Char.IsNumber(inputChar) && int.Parse(inputChar.ToString()) >= models.Count)
+                                        while (!Char.IsNumber(inputChar) && int.Parse(inputChar.ToString()) >= models.Count)
                                         {
-                                            Console.WriteLine("Select model index from [0 to {0}]: ", models.Count -1);
+                                            Console.WriteLine("Select model index from [0 to {0}]: ", models.Count - 1);
                                             selectedModel = int.Parse(Console.ReadKey().KeyChar.ToString());
                                         }
                                     }
@@ -155,16 +162,14 @@ namespace TRoschinsky.SPDataModel.cmd
                                     OutputModel(models[selectedModel], typeof(DrawioTextList));
                                     break;
                             }
-                            Console.WriteLine("Choose an option to proceed [Model, 1=DrawioCsvDiagram, 2=DrawioTextDiagram, 3=DrawioTextList, Quit]: ");
                             key = Console.ReadKey().Key;
                         }
-                        
                         break;
 
                     default:
                         break;
                 }
-                Console.WriteLine("Choose an option to proceed [Add, Create, List, Output, Quit]: ");
+                PrintInteractiveMenu(headlineBase, selectedModel, models);
                 key = Console.ReadKey().Key;
             }
         }
@@ -179,7 +184,7 @@ namespace TRoschinsky.SPDataModel.cmd
             try
             {
                 ModelGenerator generator = null;
-                switch(generatorType.GetType().Name)
+                switch (generatorType.GetType().Name)
                 {
                     case "DrawioCsvDiagram":
                         generator = new DrawioCsvDiagram(model, "Test");
@@ -191,7 +196,7 @@ namespace TRoschinsky.SPDataModel.cmd
                         generator = new DrawioTextList(model, "Test");
                         break;
                 }
-                
+
                 Console.WriteLine("----------| {0}", generator);
                 Console.WriteLine(generator.Output);
                 Console.WriteLine("-----------------------------------------");
@@ -202,5 +207,62 @@ namespace TRoschinsky.SPDataModel.cmd
                 Console.WriteLine("Output failed due to: {0}", ex.Message);
             }
         }
+
+        #region helper UI
+
+        private static void PrintInteractiveMenu(string headlineBase, int selectedModel, List<Model> models)
+        {
+            string prompt = "spdatamodel>";
+            Console.Clear();
+            Console.WriteLine();
+            Console.WriteLine(headlineBase);
+            Console.WriteLine("A: Add existing data models");
+            Console.WriteLine("C: Create new data models from scratch");
+            Console.WriteLine("L: List cached data models (selected #{0} '{1}')", selectedModel, models.Count > selectedModel ? models[selectedModel].Name : "<none>");
+            Console.WriteLine("O: Output cached data model");
+            Console.WriteLine("Q: Quit");
+            Console.WriteLine();
+            Console.Write(prompt);
+        }
+
+        private static void PrintInteractiveMenuAdd(string headlineBase)
+        {
+            string prompt = "spdatamodel add>";
+            Console.Clear();
+            Console.WriteLine();
+            Console.WriteLine(headlineBase);
+            Console.WriteLine("1: Sample 'Survey Measures'");
+            Console.WriteLine("2: Sample 'Order Process'");
+            Console.WriteLine("Q: Quit context");
+            Console.WriteLine();
+            Console.Write(prompt);
+        }
+
+        private static void PrintInteractiveMenuCreate(string headlineBase)
+        {
+            string prompt = "spdatamodel create>";
+            Console.Clear();
+            Console.WriteLine();
+            Console.WriteLine(headlineBase);
+            Console.WriteLine("*** not implemented, use Q for exit context ***");
+            Console.Write(prompt);
+        }
+
+        private static void PrintInteractiveMenuOutput(string headlineBase)
+        {
+            string prompt = "spdatamodel output>";
+            Console.Clear();
+            Console.WriteLine();
+            Console.WriteLine(headlineBase);
+            Console.WriteLine("M: Choose model for output");
+            Console.WriteLine("1: Output type = DrawioCsvDiagram");
+            Console.WriteLine("2: Output type = DrawioTextDiagram");
+            Console.WriteLine("3: Output type = DrawioTextList");
+            Console.WriteLine("Q: Quit context");
+            Console.WriteLine();
+            Console.Write(prompt);
+        }
+
+        #endregion
     }
 }
