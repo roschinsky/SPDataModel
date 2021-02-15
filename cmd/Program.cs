@@ -48,7 +48,7 @@ namespace cmd
 
             entityToAdd = new Entity() { DisplayName = "Maßnahme", InternalName = "Measure" };
             entityToAdd.AddField(new FieldMultiChoice("Maßnahmenart", "measureType", new string[] { "Personal", "Führung", "Umgebung", "Sonstiges" }));
-            entityToAdd.AddField(new FieldMultiChoice("Status", "statusCode", new string[] { "Geplant", "Verworfen", "In Bearbeitung", "Abgeschlossen" }));
+            entityToAdd.AddField(new FieldChoice("Status", "statusCode", new string[] { "Geplant", "Verworfen", "In Bearbeitung", "Abgeschlossen" }));
             entityToAdd.AddField(new FieldDateTime("Geplante Umsetzung", "dueDateInitial"));
             entityToAdd.AddField(new FieldUser("Verantwortlich", "responsible", false));
             entityToAdd.AddField(new FieldLookup("Ergebnis", new Relation(entityToAdd, model.GetEntityByName("Ergebnis"))));
@@ -59,7 +59,7 @@ namespace cmd
             entityToAdd.AddField(new FieldMultiLineText("Fortschritt", "progressDesc"));
             entityToAdd.AddField(new FieldDateTime("Geplante Umsetzung", "dueDateCurrent"));
             entityToAdd.AddField(new FieldDateTime("Status berichtet am", "reportDate"));
-            entityToAdd.AddField(new FieldMultiChoice("Fortschritt", "stateCode", new string[] { "GRAU", "GRÜN", "GELB", "ROT" }));
+            entityToAdd.AddField(new FieldChoice("Fortschritt", "stateCode", new string[] { "GRAU", "GRÜN", "GELB", "ROT" }));
             entityToAdd.AddField(new FieldLookup("Maßnahme", new Relation(entityToAdd, model.GetEntityByName("Maßnahme"))));
             model.AddEntity(entityToAdd);
 
@@ -107,6 +107,11 @@ namespace cmd
                 ModelGenerator generator3 = new DrawioCsvDiagram(model, String.Format("Convert {0} ", model.Name));
                 Console.WriteLine("----------| {0}", generator3);
                 Console.WriteLine(generator3.Output);
+                Console.WriteLine("-----------------------------------------");
+
+                ModelGenerator generator4 = new SpJsomInstaller(model, String.Format("Convert {0} ", model.Name));
+                Console.WriteLine("----------| {0}", generator4);
+                Console.WriteLine(generator4.Output);
                 Console.WriteLine("-----------------------------------------");
 
             }
