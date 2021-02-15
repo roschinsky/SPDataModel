@@ -3,21 +3,19 @@ using System.Collections.Generic;
 
 namespace TRoschinsky.SPDataModel.Lib.FieldTypes
 {
-    public class FieldMultiChoice : Field
+    public class FieldMultiChoice : FieldChoice
     {
-        public List<string> Choices = new List<string>();
 
         public FieldMultiChoice(string displayName, string internalName): base(displayName, internalName) 
         { 
             FieldTypeName = "Choice";
-            FieldType = TypeOfField.Choice;
+            FieldType = TypeOfField.MultiChoice;
         }
 
-        public FieldMultiChoice(string displayName, string internalName, string[] choices): base(displayName, internalName) 
+        public FieldMultiChoice(string displayName, string internalName, string[] choices): base(displayName, internalName, choices) 
         { 
             FieldTypeName = "Choice";
-            FieldType = TypeOfField.Choice;
-            Choices.AddRange(choices);
+            FieldType = TypeOfField.MultiChoice;
         }
 
     }

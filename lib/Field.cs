@@ -13,6 +13,11 @@ namespace TRoschinsky.SPDataModel.Lib
         public bool IsSystem { get; set; } = false;
 
         public Relation RelatedTo { get; set; }
+        public string Description { get; set; } = String.Empty;
+        public bool IsRequiredField { get; set; } = false;
+        public bool InitialAddToView { get; set; } = false;
+        public virtual string Format { get; protected set; } = String.Empty;
+        public string Default { get; set; } = String.Empty;
 
         public Field() { }
 
@@ -43,7 +48,7 @@ namespace TRoschinsky.SPDataModel.Lib
 
         public enum TypeOfField
         {
-            Decimal,
+            Number,
             DateTime,
             Text,
             Note,
@@ -51,9 +56,9 @@ namespace TRoschinsky.SPDataModel.Lib
             Url,
             Boolean,
             Choice,
+            MultiChoice,
             Lookup,
-            LookupUser,
-            LookupGroup,
+            User,
             Complex,
             System,
             Undefined
