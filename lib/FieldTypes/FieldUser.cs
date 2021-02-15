@@ -5,19 +5,14 @@ namespace TRoschinsky.SPDataModel.Lib.FieldTypes
 {
     public class FieldUser : FieldLookup
     {
-        
+        public int UserSelectionMode { get; set; } = 0;
+        public int UserSelectionScope { get; set; } = 0;
 
-        public FieldUser(string displayName, string internalName, bool isGroup): base(displayName, internalName, null) 
-        { 
-            FieldTypeName = "Person or Group";
-            FieldType = isGroup ? TypeOfField.LookupGroup : TypeOfField.LookupUser;
-        }
-
-        public FieldUser(string displayName, string internalName, Relation relatedTo, bool isGroup) : base(displayName, internalName, relatedTo)
+        public FieldUser(string displayName, string internalName, bool isGroup) : base(displayName, internalName, null)
         {
             FieldTypeName = "Person or Group";
-            FieldType = isGroup ? TypeOfField.LookupGroup : TypeOfField.LookupUser;
-            RelatedTo = relatedTo;            
+            UserSelectionMode = isGroup ? 1 : 0;
+            FieldType = TypeOfField.User;
         }
 
     }
