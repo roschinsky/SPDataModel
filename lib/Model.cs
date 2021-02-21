@@ -79,7 +79,12 @@ namespace TRoschinsky.SPDataModel.Lib
             return result;
         }
 
-#region Helper
+        public override string ToString()
+        {
+            return String.Format("'{0}' with {1} entit{2} (@ {3:d})", Name, entities.Count, entities.Count != 1 ? "ies" : "y", CreatedOn);
+        }
+
+        #region Helper
 
         public List<Field> GetDefaulListFields()
         {
@@ -93,7 +98,6 @@ namespace TRoschinsky.SPDataModel.Lib
             return fields;
         }
 
-#endregion
-
+        #endregion
     }
 }
