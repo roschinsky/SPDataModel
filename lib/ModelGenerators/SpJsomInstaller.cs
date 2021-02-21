@@ -15,9 +15,8 @@ namespace TRoschinsky.SPDataModel.Lib.ModelGenerators
         private const string genJsField = "    {{ fieldName: \"{0}\", fieldDesc: \"{2}\", fieldXml: \"<Field Type='{5}' DisplayName='{1}' Name='{0}' StaticName='{0}' Required='{3}' {6}>{7}</Field>\", addToView: {4} }},\n";
 
 
-        public SpJsomInstaller(Model inputModel, string generatorName) : base(inputModel)
+        public SpJsomInstaller(Model inputModel) : base(inputModel)
         {
-            Name = generatorName;
             RelatedApplication = new Uri("https://www.microsoft.com/de-de/microsoft-365/sharepoint/collaboration");
             RelatedApplicationUsage = "Upload the installer script to your SharePoint webs SiteAssets and SitePages libraries and run the 'Installer.aspx'.";
             OutputType = typeof(string);

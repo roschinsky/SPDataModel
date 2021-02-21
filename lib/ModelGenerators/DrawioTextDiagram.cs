@@ -7,9 +7,8 @@ namespace TRoschinsky.SPDataModel.Lib.ModelGenerators
     public class DrawioTextDiagram : ModelGenerator
     {
 
-        public DrawioTextDiagram(Model inputModel, string generatorName) : base(inputModel)
+        public DrawioTextDiagram(Model inputModel) : base(inputModel)
         {
-            Name = generatorName;
             RelatedApplication = new Uri("https://app.diagrams.net/");
             RelatedApplicationUsage = "Click the plus button in symbol bar and choose 'Advanced'>>'From Text...' and choose 'Diagram' in dropdown at the bottom of the dialog. Then insert the generated output in the textbox.";
             OutputType = typeof(string);

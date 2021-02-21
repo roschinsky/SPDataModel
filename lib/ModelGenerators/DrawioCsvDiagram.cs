@@ -23,9 +23,8 @@ namespace TRoschinsky.SPDataModel.Lib.ModelGenerators
             "## SPDataModel ...CSV based model...\n" +
             "eid,name,desc,url,fill,lkup1,lkupN";
 
-        public DrawioCsvDiagram(Model inputModel, string generatorName) : base(inputModel)
+        public DrawioCsvDiagram(Model inputModel) : base(inputModel)
         {
-            Name = generatorName;
             RelatedApplication = new Uri("https://app.diagrams.net/");
             RelatedApplicationUsage = "Click the plus button in symbol bar and choose 'Advanced'>>'CSV...' and insert the generated output in the textbox.";
             OutputType = typeof(string);
