@@ -15,7 +15,6 @@ namespace TRoschinsky.SPDataModel.Lib.ModelGenerators
 
         public override void Generate()
         {
-            string lb = Environment.NewLine;
             StringBuilder outputSb = new StringBuilder();
             foreach (Entity entity in Input.Entities)
             {
@@ -23,20 +22,18 @@ namespace TRoschinsky.SPDataModel.Lib.ModelGenerators
                 {
                     if ((entity.IsHidden && Settings.ShowHiddenLists) || (entity.IsSystem && Settings.ShowSystemLists) || (!entity.IsHidden && !entity.IsSystem))
                     {
-                        outputSb.Append(String.Format("- {0}{1}", entity, lb));
-                        outputSb.Append(String.Format("--| {0} ({1}) |--{2}", entity.DisplayName, entity.InternalName, lb));
+                        outputSb.AppendLine(String.Format("--| {0} ({1}) |--", entity.DisplayName, entity.InternalName));
                         foreach (Field field in entity.Fields)
                         {
-                            outputSb.Append(String.Format("\t- {0}", field));
+                            outputSb.AppendLine(String.Format("\t- {0}", field));
                         }
-                        outputSb.Append(lb);
                     }
                 }
                 catch (Exception ex)
                 {
-                    outputSb.Append(String.Format("\t..error: {0}{1}", ex.Message, lb));
+                    outputSb.Append(String.Format("\t..error: {0}", ex.Message));
                 }
-                outputSb.Append(lb);
+                outputSb.AppendLine();
             }
             Output = outputSb.ToString();
         }
