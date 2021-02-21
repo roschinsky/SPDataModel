@@ -201,6 +201,11 @@ namespace TRoschinsky.SPDataModel.cmd
                 Console.WriteLine(generator.Output);
                 Console.WriteLine("-----------------------------------------");
 
+                ModelGenerator generator4 = new SpJsomInstaller(model, String.Format("Convert {0} ", model.Name));
+                Console.WriteLine("----------| {0}", generator4);
+                Console.WriteLine(generator4.Output);
+                Console.WriteLine("-----------------------------------------");
+
             }
             catch (System.Exception ex)
             {
