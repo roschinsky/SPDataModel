@@ -1,0 +1,31 @@
+name: .NET
+
+on:
+  push:
+    branches: [ develop ]
+  pull_request:
+    branches: [ develop ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 5.0.x
+    - name: Restore dependencies for lib-project
+      run: dotnet restore ./lib/
+    - name: Build lib-project
+      run: dotnet build --no-restore ./lib/
+    - name: Test lib-project
+      run: dotnet test --no-build --verbosity normal ./lib/
+    - name: Restore dependencies for cmd-project
+      run: dotnet restore ./cmd/
+    - name: Build cmd-project
+      run: dotnet build --no-restore ./cmd/
+    - name: Test cmd-project
+      run: dotnet test --no-build --verbosity normal ./cmd/
