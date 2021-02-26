@@ -17,9 +17,15 @@ jobs:
       uses: actions/setup-dotnet@v1
       with:
         dotnet-version: 5.0.x
-    - name: Restore dependencies
-      run: dotnet restore
-    - name: Build
-      run: dotnet build --no-restore
-    - name: Test
-      run: dotnet test --no-build --verbosity normal
+    - name: Restore dependencies for lib-project
+      run: dotnet restore ./lib/
+    - name: Build lib-project
+      run: dotnet build --no-restore ./lib/
+    - name: Test lib-project
+      run: dotnet test --no-build --verbosity normal ./lib/
+    - name: Restore dependencies for cmd-project
+      run: dotnet restore ./cmd/
+    - name: Build cmd-project
+      run: dotnet build --no-restore ./cmd/
+    - name: Test cmd-project
+      run: dotnet test --no-build --verbosity normal ./cmd/
