@@ -8,7 +8,7 @@ namespace TRoschinsky.SPDataModel.Lib.FieldTypes
         public List<string> Choices = new List<string>();
         public bool ShowAsDropdown { get; set; } = true;
         public bool FillInChoice { get; set; } = false;
-        public override string Format { get { return ShowAsDropdown ? "DropDown" : "RadioButtons"; } }
+        public override string Format { get { return ShowAsDropdown ? "Dropdown" : "RadioButtons"; } }
 
         public FieldChoice(string displayName, string internalName) : base(displayName, internalName)
         {
