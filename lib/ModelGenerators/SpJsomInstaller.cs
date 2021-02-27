@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
+using TRoschinsky.SPDataModel.Lib.FieldTypes;
 
 namespace TRoschinsky.SPDataModel.Lib.ModelGenerators
 {
@@ -26,7 +28,9 @@ namespace TRoschinsky.SPDataModel.Lib.ModelGenerators
         public override void Generate()
         {
             StringBuilder outputSb = new StringBuilder();
-            foreach (Entity entity in Input.Entities)
+            List<Entity> sortedEntities = GetSortedEntitiesByRelations(Input.Entities);
+
+            foreach (Entity entity in sortedEntities)
             {
                 try
                 {
@@ -46,43 +50,43 @@ namespace TRoschinsky.SPDataModel.Lib.ModelGenerators
                                 case Field.TypeOfField.Boolean:
                                     fieldSpecialContent = "<Default>0</Default>";
                                     break;
-                                
+
                                 case Field.TypeOfField.DateTime:
                                     var fieldDate = field as FieldTypes.FieldDateTime;
-                                    fieldSpecialAttributes = String.Format("Format='{0}' ", 
+                                    fieldSpecialAttributes = String.Format("Format='{0}' ",
                                         fieldDate.ShowDateAndTime ? "DateTime" : "DateOnly");
                                     break;
-                                
+
                                 case Field.TypeOfField.Url:
                                     var fieldUrl = field as FieldTypes.FieldUrl;
-                                    fieldSpecialAttributes = String.Format("Format='{0}' ",fieldUrl.Format);
+                                    fieldSpecialAttributes = String.Format("Format='{0}' ", fieldUrl.Format);
                                     break;
-                                
+
                                 case Field.TypeOfField.Number:
                                     var fieldNumber = field as FieldTypes.FieldNumber;
-                                    fieldSpecialAttributes = String.Format("Decimals='{0}' {1}{2}{3}", 
+                                    fieldSpecialAttributes = String.Format("Decimals='{0}' {1}{2}{3}",
                                         fieldNumber.Decimals,
                                         fieldNumber.ValueMinimum != int.MinValue ? String.Format("Min='{0}' ", fieldNumber.ValueMinimum) : String.Empty,
                                         fieldNumber.ValueMaximum != int.MaxValue ? String.Format("Max='{0}' ", fieldNumber.ValueMaximum) : String.Empty,
                                         fieldNumber.AsPercentage ? "" : String.Empty);
                                     break;
-                                    
+
                                 case Field.TypeOfField.Note:
                                     var fieldNote = field as FieldTypes.FieldMultiLineText;
-                                    fieldSpecialAttributes = String.Format("RichText='{0}' {1}{2}NumLines='{3}' AppendOnly='{4}' ", 
+                                    fieldSpecialAttributes = String.Format("RichText='{0}' {1}{2}NumLines='{3}' AppendOnly='{4}' ",
                                         fieldNote.IsRichTextEnabled ? "TRUE" : "FALSE",
                                         fieldNote.IsRichTextEnabled ? String.Format("RichTextMode='{0}' ", fieldNote.RichTextMode) : String.Empty,
                                         fieldNote.IsRichTextEnabled ? String.Format("IsolateStyles='{0}' ", fieldNote.IsRichTextIsolatedStyles ? "TRUE" : "FALSE") : String.Empty,
-                                        fieldNote.NumLines, 
+                                        fieldNote.NumLines,
                                         fieldNote.AppendOnly ? "TRUE" : "FALSE");
                                     break;
 
                                 case Field.TypeOfField.Lookup:
                                     var fieldLookup = field as FieldTypes.FieldLookup;
-                                    fieldSpecialAttributes = String.Format("List='{0}' ShowField='{1}' RelationshipDeleteBehavior='{2}' Mult='{3}' ", 
-                                        fieldLookup.List, 
-                                        fieldLookup.ShowField, 
-                                        fieldLookup.RelationshipDeleteBehavior, 
+                                    fieldSpecialAttributes = String.Format("List='{0}' ShowField='{1}' RelationshipDeleteBehavior='{2}' Mult='{3}' ",
+                                        fieldLookup.List,
+                                        fieldLookup.ShowField,
+                                        fieldLookup.RelationshipDeleteBehavior,
                                         fieldLookup.IsMultiLookup);
                                     break;
 
@@ -104,9 +108,9 @@ namespace TRoschinsky.SPDataModel.Lib.ModelGenerators
 
                                 case Field.TypeOfField.User:
                                     var fieldUser = field as FieldTypes.FieldUser;
-                                    fieldSpecialAttributes = String.Format("UserSelectionMode='{0}' UserSelectionScope='{1}' Mult='{2}' ", 
-                                        fieldUser.UserSelectionMode, 
-                                        fieldUser.UserSelectionScope, 
+                                    fieldSpecialAttributes = String.Format("UserSelectionMode='{0}' UserSelectionScope='{1}' Mult='{2}' ",
+                                        fieldUser.UserSelectionMode,
+                                        fieldUser.UserSelectionScope,
                                         fieldUser.IsMultiLookup);
                                     break;
 
@@ -125,9 +129,9 @@ namespace TRoschinsky.SPDataModel.Lib.ModelGenerators
                             outputSbFields.Append(codeJsfield);
                         }
 
-                        outputSb.AppendLine(String.Format(genJsEntity, 
-                            entity.InternalName, 
-                            entity.Description, 
+                        outputSb.AppendLine(String.Format(genJsEntity,
+                            entity.InternalName,
+                            entity.Description,
                             outputSbFields.ToString().TrimEnd('\n', ',')));
                     }
                 }
@@ -138,6 +142,39 @@ namespace TRoschinsky.SPDataModel.Lib.ModelGenerators
             }
 
             Output = String.Concat(genJsHead, outputSb.ToString());
+        }
+
+        private List<Entity> GetSortedEntitiesByRelations(List<Entity> unorderedEntities)
+        {
+            Dictionary<string, Entity> result = new Dictionary<string, Entity>();
+            int iterations = 0;
+
+            while (result.Count < unorderedEntities.Count && iterations < unorderedEntities.Count)
+            {
+                iterations++;
+                foreach (Entity entity in unorderedEntities)
+                {
+                    if (!result.ContainsKey(entity.InternalName))
+                    {
+                        bool noUnresolvedRelations = true;
+                        foreach(Relation relation in entity.Relations)
+                        {
+                            if(!result.ContainsKey(relation.LookupToEntityName))
+                            {
+                                noUnresolvedRelations = false;
+                                break;
+                            }
+                        }
+
+                        if (noUnresolvedRelations)
+                        {
+                            result.Add(entity.InternalName, entity);
+                        }
+                    }
+                }
+            }
+
+            return result.Values.ToList<Entity>();
         }
     }
 }
