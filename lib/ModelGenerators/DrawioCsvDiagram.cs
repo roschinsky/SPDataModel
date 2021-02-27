@@ -58,11 +58,11 @@ namespace TRoschinsky.SPDataModel.Lib.ModelGenerators
                         {
                             if (relation.IsMultiLookup)
                             {
-                                lkupNs += indexedEntities[relation.LookupToEntity.InternalName] + ",";
+                                lkupNs += indexedEntities[relation.LookupToEntityName] + ",";
                             }
                             else
                             {
-                                lkup1s += indexedEntities[relation.LookupToEntity.InternalName] + ",";
+                                lkup1s += indexedEntities[relation.LookupToEntityName] + ",";
                             }
                         }
 

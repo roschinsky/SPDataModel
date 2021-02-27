@@ -18,7 +18,7 @@ namespace TRoschinsky.SPDataModel.Lib
         private List<Field> fields { get; set; } = new List<Field>();
 
         public Relation[] Relations { get { return relations.ToArray(); } }
-        private List<Relation> relations { get { return GetRelations(); } }
+        private List<Relation> relations { get { return GetRelations(false); } }
 
         public Entity()
         {
@@ -64,16 +64,32 @@ namespace TRoschinsky.SPDataModel.Lib
             }
         }
 
-        private List<Relation> GetRelations()
+        public List<Relation> GetRelations(bool includeOnlyResolved)
         {
             List<Relation> relations = new List<Relation>();
 
-            foreach (Field field in fields.FindAll(f => f.RelatedTo != null))
+            foreach (Field field in fields.FindAll(f => f.RelatedTo != null && !f.IsSystem))
             {
-                relations.Add(field.RelatedTo);
+                if(!includeOnlyResolved || field.RelatedTo.IsResolvedRelation)
+                {
+                    relations.Add(field.RelatedTo);
+                }
             }
 
             return relations;
+        }
+
+        public bool ResolveRelations(Model model)
+        {
+            bool allResolved = true;
+            foreach(Relation relation in relations)
+            {
+                if(!relation.Resolve(model) && allResolved)
+                {
+                    allResolved = false;
+                }
+            }
+            return allResolved;
         }
 
         public override string ToString()
@@ -105,7 +121,7 @@ namespace TRoschinsky.SPDataModel.Lib
                 relationList = String.Format("[{0}] {{ ", relations.Count);
                 for (int i = 0; i < relations.Count && i <= 5; i++)
                 {
-                    relationList += relations[i].LookupToEntity.InternalName + ", ";
+                    relationList += relations[i].LookupToEntityName + ", ";
                     if (i == 5 && relations.Count > 6)
                     {
                         relationList += "...";

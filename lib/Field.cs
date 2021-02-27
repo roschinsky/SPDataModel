@@ -43,7 +43,7 @@ namespace TRoschinsky.SPDataModel.Lib
                 FieldTypeName,
                 IsSystem ? " +System" : String.Empty,
                 IsHidden ? " +Hidden" : String.Empty,
-                RelatedTo != null ? " +Lookup " + (RelatedTo.IsMultiLookup ? "<=> " : "=> ") + RelatedTo.LookupToEntity.InternalName : String.Empty);
+                RelatedTo != null ? " +Lookup " + (RelatedTo.IsMultiLookup ? "<=> " : "=> ") + RelatedTo.LookupToEntityName : String.Empty);
         }
 
         public enum TypeOfField

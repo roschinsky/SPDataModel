@@ -31,7 +31,7 @@ namespace TRoschinsky.SPDataModel.Lib.ModelGenerators
                         {
                         outputSb.Append(String.Format("{0}->{1}{2}",
                             Settings.UseDisplayNames ? entity.DisplayName : entity.InternalName,
-                            Settings.UseDisplayNames ? relation.LookupToEntity.DisplayName : relation.LookupToEntity.InternalName,
+                            Settings.UseDisplayNames ? relation.LookupToEntity.DisplayName : relation.LookupToEntityName,
                             lb));
                         }
                     }

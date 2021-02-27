@@ -15,8 +15,11 @@ namespace TRoschinsky.SPDataModel.Lib
         public Uri Url { get; private set; }
         public List<Entity> Entities { get => entities; }
         private List<Entity> entities = new List<Entity>();
-        public CultureInfo CultureToUse {get; private set;} = CultureInfo.CurrentCulture;
+        public CultureInfo CultureToUse { get; private set; } = CultureInfo.CurrentCulture;
         private Dictionary<string, string> customRessources = new Dictionary<string, string>();
+        public bool RelationsAreResolved { get; private set; } = false;
+
+        public string DefaultUilInternalName { get; private set; }
 
         public Model(string name)
         {
@@ -42,19 +45,20 @@ namespace TRoschinsky.SPDataModel.Lib
             // get resources for globalization
             customRessources = Commons.LoadCustomResources("Defaults", CultureToUse);
 
-            if(customRessources.ContainsKey("_ERROR"))
+            if (customRessources.ContainsKey("_ERROR"))
             {
                 throw new InvalidDataException("Initialization failed while loading resoures: " + customRessources["_ERROR"]);
             }
 
             // add default list
-            if(entities.Find(e => e.InternalName == customRessources["lin_uil"]) == null)
+            if (entities.Find(e => e.InternalName == customRessources["lin_uil"]) == null)
             {
-                Entity uil = new Entity(customRessources["ldn_uil"] , customRessources["lin_uil"]);
+                DefaultUilInternalName = customRessources["lin_uil"];
+                Entity uil = new Entity(customRessources["ldn_uil"], customRessources["lin_uil"]);
                 uil.IsSystem = true;
                 uil.IsHidden = true;
                 uil.IsUil = true;
-                Entities.Add(uil);
+                entities.Add(uil);
             }
         }
 
@@ -62,21 +66,27 @@ namespace TRoschinsky.SPDataModel.Lib
         {
             entity.AddFieldRange(GetDefaulListFields().ToArray());
             entities.Add(entity);
+            RelationsAreResolved = ResolveRelations();
         }
 
         public void AddEntityRange(Entity[] multipleEntities)
         {
-            foreach(Entity entity in multipleEntities)
+            foreach (Entity entity in multipleEntities)
             {
                 entity.AddFieldRange(GetDefaulListFields().ToArray());
                 entities.Add(entity);
             }
+            RelationsAreResolved = ResolveRelations();
         }
 
         public Entity GetEntityByName(string entityName)
         {
-            Entity result = entities.Find(e => e.DisplayName == entityName);
-            return result;
+            return entities.Find(e => e.DisplayName == entityName);
+        }
+
+        public Entity GetEntityByInternalName(string entityInternalName)
+        {
+            return entities.Find(e => e.InternalName == entityInternalName);
         }
 
         public override string ToString()
@@ -92,10 +102,23 @@ namespace TRoschinsky.SPDataModel.Lib
             fields.Add(new FieldComputed("ID", "id") { IsSystem = true });
             fields.Add(new FieldText(customRessources["fdn_title"], customRessources["fin_title"]));
             fields.Add(new FieldDateTime(customRessources["fdn_created"], customRessources["fin_created"]) { IsSystem = true });
-            fields.Add(new FieldUser(customRessources["fdn_author"], customRessources["fin_author"], false) { IsSystem = true });
+            fields.Add(new FieldUser(customRessources["fdn_author"], customRessources["fin_author"], false, DefaultUilInternalName) { IsSystem = true });
             fields.Add(new FieldDateTime(customRessources["fdn_modified"], customRessources["fin_modified"]) { IsSystem = true });
-            fields.Add(new FieldUser(customRessources["fdn_editor"], customRessources["fin_editor"], false) { IsSystem = true });
+            fields.Add(new FieldUser(customRessources["fdn_editor"], customRessources["fin_editor"], false, DefaultUilInternalName) { IsSystem = true });
             return fields;
+        }
+
+        public bool ResolveRelations()
+        {
+            bool allResolved = true;
+            foreach (Entity entity in entities)
+            {
+                if (!entity.ResolveRelations(this) && allResolved)
+                {
+                    allResolved = false;
+                }
+            }
+            return allResolved;
         }
 
         #endregion
