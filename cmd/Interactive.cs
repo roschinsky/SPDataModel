@@ -1,8 +1,9 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
+using TRoschinsky.Common;
 using TRoschinsky.SPDataModel.Lib;
 using TRoschinsky.SPDataModel.Lib.Data;
-using TRoschinsky.SPDataModel.Lib.ModelGenerators;
 
 namespace TRoschinsky.SPDataModel.cmd
 {
@@ -45,6 +46,27 @@ namespace TRoschinsky.SPDataModel.cmd
                             Model sampleModel = null;
                             switch (key)
                             {
+                                case ConsoleKey.O:
+                                    bool wasChanged = false;
+                                    string fileName = "-";
+                                    FileInfo fileToOpen = null;
+                                    Console.WriteLine();
+                                    while (!wasChanged && !String.IsNullOrEmpty(fileName))
+                                    {
+                                        Console.Write("Enter a data model file: ");
+                                        fileName = Console.ReadLine();
+                                        if (!String.IsNullOrEmpty(fileName))
+                                        {
+                                            fileToOpen = new FileInfo(fileName);
+                                            wasChanged = true;
+                                        }
+                                    }
+                                    if (!String.IsNullOrEmpty(fileName) && fileToOpen.Exists)
+                                    {
+                                        ModelParser parser = new Lib.ModelParsers.FormatJson(fileToOpen);
+                                        models.Add(parser.Output);
+                                    }
+                                    break;
                                 case ConsoleKey.NumPad1:
                                 case ConsoleKey.D1:
                                     sampleModel = SampleModels.GetSampleModel(SampleModels.SampleModelType.MeasureTracking);
@@ -80,65 +102,73 @@ namespace TRoschinsky.SPDataModel.cmd
                         }
                         break;
 
+                    // Select model
+                    case ConsoleKey.M:
+                        if (models.Count > 0)
+                        {
+                            bool wasChanged = false;
+                            Console.WriteLine();
+                            while (!wasChanged && IsNotEscape(key))
+                            {
+                                Console.Write("Select model index from [0 to {0}]: ", models.Count - 1);
+                                ConsoleKeyInfo keyInfo = Console.ReadKey();
+                                Console.WriteLine();
+                                key = keyInfo.Key;
+                                if (char.IsNumber(keyInfo.KeyChar))
+                                {
+                                    selectedModel = int.Parse(keyInfo.KeyChar.ToString());
+                                    if (selectedModel < models.Count)
+                                    {
+                                        wasChanged = true;
+                                    }
+                                }
+                            }
+                        }
+                        break;
+
                     // Output models
-                    case ConsoleKey.O:
+                    case ConsoleKey.S:
+                    case ConsoleKey.F:
                         if (!(models.Count > 0))
                         {
                             promptStatus = "** Fist choose A or C to add a model! **";
                             break;
                         }
+                        bool saveAsFile = key == ConsoleKey.F ? true : false;
                         while (IsNotEscape(key))
                         {
                             switch (key)
                             {
-                                case ConsoleKey.M:
-                                    if (models.Count > 0)
-                                    {
-                                        bool wasChanged = false;
-                                        Console.WriteLine();
-                                        while (!wasChanged && IsNotEscape(key))
-                                        {
-                                            Console.Write("Select model index from [0 to {0}]: ", models.Count - 1);
-                                            ConsoleKeyInfo keyInfo = Console.ReadKey();
-                                            Console.WriteLine();
-                                            key = keyInfo.Key;
-                                            if (char.IsNumber(keyInfo.KeyChar))
-                                            {
-                                                selectedModel = int.Parse(keyInfo.KeyChar.ToString());
-                                                if (selectedModel < models.Count)
-                                                {
-                                                    wasChanged = true;
-                                                }
-                                            }
-                                        }
-                                    }
-                                    break;
-
+                                case ConsoleKey.Oem5:
                                 case ConsoleKey.NumPad0:
                                 case ConsoleKey.D0:
-                                    OutputModel(new ConsoleSimple(models[selectedModel]));
+                                    OutputModel(new Lib.ModelGenerators.ConsoleSimple(models[selectedModel]), saveAsFile);
                                     break;
                                 case ConsoleKey.NumPad1:
                                 case ConsoleKey.D1:
-                                    OutputModel(new DrawioCsvDiagram(models[selectedModel]));
+                                    OutputModel(new Lib.ModelGenerators.DrawioCsvDiagram(models[selectedModel]), saveAsFile);
                                     break;
                                 case ConsoleKey.NumPad2:
                                 case ConsoleKey.D2:
-                                    OutputModel(new DrawioTextDiagram(models[selectedModel]));
+                                    OutputModel(new Lib.ModelGenerators.DrawioTextDiagram(models[selectedModel]), saveAsFile);
                                     break;
                                 case ConsoleKey.NumPad3:
                                 case ConsoleKey.D3:
-                                    OutputModel(new DrawioTextList(models[selectedModel]));
+                                    OutputModel(new Lib.ModelGenerators.DrawioTextList(models[selectedModel]), saveAsFile);
                                     break;
                                 case ConsoleKey.NumPad4:
                                 case ConsoleKey.D4:
-                                    OutputModel(new SpJsomInstaller(models[selectedModel]));
+                                    OutputModel(new Lib.ModelGenerators.SpJsomInstaller(models[selectedModel]), saveAsFile);
+                                    break;
+                                case ConsoleKey.NumPad5:
+                                case ConsoleKey.D5:
+                                    OutputModel(new Lib.ModelGenerators.FormatJson(models[selectedModel]), saveAsFile);
                                     break;
                                 default:
                                     promptStatus = String.Empty;
                                     break;
                             }
-                            PrintInteractiveMenuOutput();
+                            PrintInteractiveMenuOutput(saveAsFile);
                             key = Console.ReadKey().Key;
                         }
                         break;
@@ -152,12 +182,23 @@ namespace TRoschinsky.SPDataModel.cmd
             }
         }
 
-        private void OutputModel(ModelGenerator generator)
+        private void OutputModel(ModelGenerator generator, bool saveAsFile)
         {
             try
             {
-                promptStatus = String.Format("** Generator '{0}' output... **\n", String.IsNullOrEmpty(generator.Name) ? generator.GetType().Name : generator.Name);
-                promptStatus += generator.Output;
+                if (saveAsFile)
+                {
+                    promptStatus += String.Format("** Generator output {0} saved... **\n", generator.Save() ? "successfully" : "couldn't be");
+                    foreach (JournalEntry entry in generator.Log)
+                    {
+                        promptStatus += String.Concat(entry, "\n");
+                    }
+                }
+                else
+                {
+                    promptStatus = String.Format("** Generator '{0}' output... **\n", String.IsNullOrEmpty(generator.Name) ? generator.GetType().Name : generator.Name);
+                    promptStatus += generator.Output;
+                }
             }
             catch (System.Exception ex)
             {
@@ -174,10 +215,12 @@ namespace TRoschinsky.SPDataModel.cmd
             Console.WriteLine();
             Console.WriteLine(headlineBase);
             Console.WriteLine(horizontalRuler);
-            Console.WriteLine("A: Add existing data models");
-            Console.WriteLine("C: Create new data models from scratch");
-            Console.WriteLine("L: List cached data models (selected #{0} '{1}')", selectedModel, models.Count > selectedModel ? models[selectedModel].Name : "<none>");
-            Console.WriteLine("O: Output cached data model");
+            Console.WriteLine("A: Add existing model");
+            Console.WriteLine("C: Create new models from scratch");
+            Console.WriteLine("L: List cached models (selected #{0} '{1}')", selectedModel, models.Count > selectedModel ? models[selectedModel].Name : "<none>");
+            Console.WriteLine("M: Set currently selected model");
+            Console.WriteLine("S: Output selected model to screen");
+            Console.WriteLine("F: Output selected model to file system");
             Console.WriteLine("Q: Quit");
             Console.WriteLine(horizontalRuler);
             if (!String.IsNullOrEmpty(promptStatus))
@@ -195,6 +238,7 @@ namespace TRoschinsky.SPDataModel.cmd
             Console.WriteLine();
             Console.WriteLine(headlineBase);
             Console.WriteLine(horizontalRuler);
+            Console.WriteLine("O: Open data model from file...");
             Console.WriteLine("1: Sample 'Survey Measures'");
             Console.WriteLine("2: Sample 'Order Process'");
             Console.WriteLine("Q: Quit context");
@@ -218,18 +262,18 @@ namespace TRoschinsky.SPDataModel.cmd
             Console.Write(prompt);
         }
 
-        private void PrintInteractiveMenuOutput()
+        private void PrintInteractiveMenuOutput(bool saveAsFile)
         {
-            string prompt = "spdatamodel output>";
+            string prompt = String.Format("spdatamodel {0}>", saveAsFile ? "write" : "output");
             Console.Clear();
             Console.WriteLine();
             Console.WriteLine(headlineBase);
-            Console.WriteLine("M: Set currently selected model for output");
-            Console.WriteLine("0: Just show me the model...");
+            Console.WriteLine("^: Just show me the model...");
             Console.WriteLine("1: Output type = DrawioCsvDiagram");
             Console.WriteLine("2: Output type = DrawioTextDiagram");
             Console.WriteLine("3: Output type = DrawioTextList");
             Console.WriteLine("4: Output type = SpJsomInstaller");
+            Console.WriteLine("5: Output type = FormatJson");
             Console.WriteLine("Q: Quit context");
             Console.WriteLine(horizontalRuler);
             if (!String.IsNullOrEmpty(promptStatus))
