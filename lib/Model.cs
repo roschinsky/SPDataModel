@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
+using System.Text.Json.Serialization;
 using TRoschinsky.SPDataModel.Lib.FieldTypes;
 
 namespace TRoschinsky.SPDataModel.Lib
@@ -15,11 +16,17 @@ namespace TRoschinsky.SPDataModel.Lib
         public Uri Url { get; private set; }
         public List<Entity> Entities { get => entities; }
         private List<Entity> entities = new List<Entity>();
+        [JsonIgnore]
         public CultureInfo CultureToUse { get; private set; } = CultureInfo.CurrentCulture;
         private Dictionary<string, string> customRessources = new Dictionary<string, string>();
         public bool RelationsAreResolved { get; private set; } = false;
 
         public string DefaultUilInternalName { get; private set; }
+
+        public Model()
+        {            
+            Initialize();
+        }
 
         public Model(string name)
         {
