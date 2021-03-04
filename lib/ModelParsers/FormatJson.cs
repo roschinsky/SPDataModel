@@ -36,11 +36,10 @@ namespace TRoschinsky.SPDataModel.Lib.ModelParsers
             {
                 JsonSerializerOptions options = new JsonSerializerOptions();
                 options.WriteIndented = true;
-                options.IgnoreReadOnlyFields = true;
-                options.IgnoreReadOnlyProperties = true;
                 options.NumberHandling = System.Text.Json.Serialization.JsonNumberHandling.AllowNamedFloatingPointLiterals;
                 options.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.Preserve;
-                Output = JsonSerializer.Deserialize(Input as string, typeof(Model)) as Model;
+                ModelExport deserializedModel = JsonSerializer.Deserialize(Input as string, typeof(ModelExport), options) as ModelExport;
+                Output = deserializedModel.GetModel();
             }
             catch (Exception ex)
             {

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Text.Json.Serialization;
 using TRoschinsky.SPDataModel.Lib.FieldTypes;
 
 namespace TRoschinsky.SPDataModel.Lib
@@ -16,7 +17,7 @@ namespace TRoschinsky.SPDataModel.Lib
 
         public Field[] Fields { get { return fields.ToArray(); } }
         private List<Field> fields { get; set; } = new List<Field>();
-
+        [JsonIgnore]
         public Relation[] Relations { get { return relations.ToArray(); } }
         private List<Relation> relations { get { return GetRelations(false); } }
 
@@ -84,7 +85,7 @@ namespace TRoschinsky.SPDataModel.Lib
             bool allResolved = true;
             foreach(Relation relation in relations)
             {
-                if(!relation.Resolve(model) && allResolved)
+                if(!relation.Resolve(model, this) && allResolved)
                 {
                     allResolved = false;
                 }

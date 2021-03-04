@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
-using System.Text.Json.Serialization;
 using TRoschinsky.SPDataModel.Lib.FieldTypes;
 
 namespace TRoschinsky.SPDataModel.Lib
@@ -11,22 +10,16 @@ namespace TRoschinsky.SPDataModel.Lib
     {
         public string Name { get; set; }
         public string Description { get; set; }
-        public readonly DateTime CreatedOn = DateTime.Now;
-        public readonly Guid ModelId = Guid.NewGuid();
+        public DateTime CreatedOn { get; private set; }
+        public Guid ModelId { get; private set; }
         public Uri Url { get; private set; }
         public List<Entity> Entities { get => entities; }
         private List<Entity> entities = new List<Entity>();
-        [JsonIgnore]
         public CultureInfo CultureToUse { get; private set; } = CultureInfo.CurrentCulture;
         private Dictionary<string, string> customRessources = new Dictionary<string, string>();
         public bool RelationsAreResolved { get; private set; } = false;
 
         public string DefaultUilInternalName { get; private set; }
-
-        public Model()
-        {            
-            Initialize();
-        }
 
         public Model(string name)
         {
@@ -47,8 +40,33 @@ namespace TRoschinsky.SPDataModel.Lib
             Initialize();
         }
 
+        public Model(ModelExport exportedModel)
+        {
+            Name = exportedModel.Name;
+            Description = exportedModel.Description;
+            CreatedOn = exportedModel.CreatedOn != 0 ? new DateTime(exportedModel.CreatedOn) : DateTime.Now;
+            ModelId = !String.IsNullOrEmpty(exportedModel.ModelId) ? new Guid(exportedModel.ModelId) : Guid.NewGuid();
+            Url = !String.IsNullOrEmpty(exportedModel.Url) ? new Uri(exportedModel.Url) : null;
+            CultureToUse = exportedModel.CultureToUse != 0 ? new CultureInfo(exportedModel.CultureToUse) : CultureInfo.CurrentCulture;
+            
+            // get resources for globalization
+            customRessources = Commons.LoadCustomResources("Defaults", CultureToUse);
+
+            if (customRessources.ContainsKey("_ERROR"))
+            {
+                throw new InvalidDataException("Initialization failed while loading resoures: " + customRessources["_ERROR"]);
+            }
+            
+            AddEntityRange(exportedModel.Entities.ToArray());
+            DefaultUilInternalName = exportedModel.DefaultUilInternalName;
+        }
+
         private void Initialize()
         {
+            // set some basic references
+            ModelId = Guid.NewGuid();
+            CreatedOn = DateTime.Now;
+
             // get resources for globalization
             customRessources = Commons.LoadCustomResources("Defaults", CultureToUse);
 

@@ -2,6 +2,7 @@ using System;
 using System.IO;
 using System.Text;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using TRoschinsky.Common;
 
 namespace TRoschinsky.SPDataModel.Lib.ModelGenerators
@@ -23,12 +24,12 @@ namespace TRoschinsky.SPDataModel.Lib.ModelGenerators
             try
             {
                 JsonSerializerOptions options = new JsonSerializerOptions();
+                // TODO: https://docs.microsoft.com/de-de/dotnet/standard/serialization/system-text-json-converters-how-to?pivots=dotnet-5-0#support-polymorphic-deserialization
+                //options.Converters.Add(new JsonEnityConverter());
                 options.WriteIndented = true;
-                options.IgnoreReadOnlyFields = true;
-                options.IgnoreReadOnlyProperties = true;
                 options.NumberHandling = System.Text.Json.Serialization.JsonNumberHandling.AllowNamedFloatingPointLiterals;
                 options.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.Preserve;
-                Output = JsonSerializer.Serialize(Input, typeof(Model), options);
+                Output = JsonSerializer.Serialize(new ModelExport(Input), typeof(ModelExport), options);
             }
             catch (Exception ex)
             {

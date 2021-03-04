@@ -65,10 +65,6 @@ namespace TRoschinsky.SPDataModel.Lib
 
         private void SetDefaultDirectory()
         {
-            // DefaultFilePath = new DirectoryInfo(String.Format("{0}{1}{2}", 
-            //     Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), 
-            //     Path.DirectorySeparatorChar, 
-            //     DefaultFolderName));
             DefaultFilePath = new DirectoryInfo(Path.Join(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), DefaultFolderName));
         }
 
