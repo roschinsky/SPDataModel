@@ -25,7 +25,7 @@ namespace TRoschinsky.SPDataModel.Lib.ModelGenerators
             {
                 JsonSerializerOptions options = new JsonSerializerOptions();
                 // TODO: https://docs.microsoft.com/de-de/dotnet/standard/serialization/system-text-json-converters-how-to?pivots=dotnet-5-0#support-polymorphic-deserialization
-                //options.Converters.Add(new JsonEnityConverter());
+                options.Converters.Add(new FieldSerializationConverter());
                 options.WriteIndented = true;
                 options.NumberHandling = System.Text.Json.Serialization.JsonNumberHandling.AllowNamedFloatingPointLiterals;
                 options.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.Preserve;
