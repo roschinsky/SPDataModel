@@ -15,7 +15,8 @@ namespace TRoschinsky.SPDataModel.Lib
         public bool IsSystem { get; set; } = false;
         public bool IsUil { get; set; } = false;
 
-        public Field[] Fields { get { return fields.ToArray(); } }
+        //public Field[] Fields { get { return fields.ToArray(); } }
+        public Field[] Fields { get { return fields.ToArray(); } set { fields.Clear(); fields.AddRange(value); } }
         private List<Field> fields { get; set; } = new List<Field>();
         [JsonIgnore]
         public Relation[] Relations { get { return relations.ToArray(); } }
@@ -23,7 +24,7 @@ namespace TRoschinsky.SPDataModel.Lib
 
         public Entity()
         {
-            Initialize();
+            //Initialize();
         }
 
         public Entity(string displayName, string internalName)

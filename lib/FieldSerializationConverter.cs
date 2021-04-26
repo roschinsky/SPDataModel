@@ -52,15 +52,18 @@ namespace TRoschinsky.SPDataModel.Lib
                 if (reader.TokenType == JsonTokenType.EndObject)
                 {
                     string displayName = fieldData["DisplayName"] as string;
-                    string internalName = fieldData["DisplayName"] as string;
+                    string internalName = fieldData["InternalName"] as string;
 
                     Field field = typeDiscriminator switch
                     {
                         TypeOfField.Boolean => new FieldBoolean(displayName, internalName),
                         TypeOfField.Choice => new FieldChoice(displayName, internalName),
+                        TypeOfField.MultiChoice => new FieldChoice(displayName, internalName),
                         TypeOfField.Text => new FieldText(displayName, internalName),
+                        TypeOfField.Note => new FieldMultiLineText(displayName, internalName),
                         TypeOfField.DateTime => new FieldDateTime(displayName, internalName),
                         TypeOfField.Number => new FieldNumber(displayName, internalName),
+                        TypeOfField.Lookup => new FieldLookup(displayName, internalName, String.Empty),
                         TypeOfField.User => new FieldUser(displayName, internalName, ((int)fieldData["UserSelectionMode"]) == 1 ? true : false, ""),                        
                         TypeOfField.Url => new FieldUrl(displayName, internalName) { IsHyperlink = (bool)fieldData["IsHyperlink"] },
                         _ => throw new JsonException("Second element property value is expected to match a supported field type.")
@@ -75,11 +78,11 @@ namespace TRoschinsky.SPDataModel.Lib
                     reader.Read();
 
                     if(propertyName.Equals("NumLines") || 
-                    propertyName.Equals("UserSelectionMode") || 
-                    propertyName.Equals("UserSelectionScope") || 
-                    propertyName.Equals("Decimals") || 
-                    propertyName.Equals("ValueMinimum") || 
-                    propertyName.Equals("ValueMaximum")) 
+                        propertyName.Equals("UserSelectionMode") || 
+                        propertyName.Equals("UserSelectionScope") || 
+                        propertyName.Equals("Decimals") || 
+                        propertyName.Equals("ValueMinimum") || 
+                        propertyName.Equals("ValueMaximum")) 
                     {
                         fieldData.Add(propertyName, reader.GetInt32());
                     }
@@ -92,7 +95,11 @@ namespace TRoschinsky.SPDataModel.Lib
                         propertyName.Equals("AsPercentage") || 
                         propertyName.Equals("ShowDateAndTime") || 
                         propertyName.Equals("ShowAsDropdown") || 
-                        propertyName.Equals("FillInChoice")) 
+                        propertyName.Equals("FillInChoice") || 
+                        propertyName.Equals("IsRequiredField") || 
+                        propertyName.Equals("InitialAddToView") || 
+                        propertyName.Equals("IsSystem") || 
+                        propertyName.Equals("IsHidden")) 
                     {
                         fieldData.Add(propertyName, reader.GetBoolean());
                     }
@@ -107,7 +114,7 @@ namespace TRoschinsky.SPDataModel.Lib
                     else if(reader.TokenType == JsonTokenType.StartObject) 
                     {
                         string objectName = propertyName;
-                        Dictionary<string, string> relationProperties = new Dictionary<string, string>();
+                        Dictionary<string, object> relationProperties = new Dictionary<string, object>();
 
                         reader.Read();
                         propertyName = reader.GetString();
@@ -120,12 +127,14 @@ namespace TRoschinsky.SPDataModel.Lib
                         reader.Read();
                         propertyName = reader.GetString();
                         reader.Read();
-                        relationProperties.Add(propertyName, reader.GetString());
+                        relationProperties.Add(propertyName, reader.GetBoolean());
+
+
 
                         Relation relation = new Relation(
                             relationProperties["LookupFromEntityName"] as string, 
                             relationProperties["LookupToEntityName"] as string) { 
-                                IsMultiLookup = (relationProperties["IsMultiLookup"] as string).ToLower() == "true" ? true : false };
+                            IsMultiLookup = (bool)relationProperties["IsMultiLookup"] };
                         fieldData.Add(objectName, relation);
                     }
                     else 
@@ -237,7 +246,8 @@ namespace TRoschinsky.SPDataModel.Lib
                 writer.WriteStartObject("RelatedTo");
                 writer.WriteString("LookupFromEntityName", field.RelatedTo.LookupFromEntityName);
                 writer.WriteString("LookupToEntityName", field.RelatedTo.LookupToEntityName);
-                writer.WriteNumber("IsMultiLookup", field.RelatedTo.IsMultiLookup ? 1 : 0);
+                writer.WriteBoolean("IsMultiLookup", field.RelatedTo.IsMultiLookup);
+                writer.WriteEndObject();
             }
             writer.WriteString("Description", field.Description);
             writer.WriteBoolean("IsRequiredField", field.IsRequiredField);
