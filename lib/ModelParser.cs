@@ -9,7 +9,7 @@ namespace TRoschinsky.SPDataModel.Lib
     {
         public string Name { get; set; } = String.Empty;
         public string Description { get; set; } = String.Empty;
-        public Type RelatedModelParser { get; protected set; }
+        public Type RelatedModelGenerator { get; protected set; }
         public object Input { get; protected set; }
         public Type InputType { get; protected set; }
         public Model Output { get; protected set; }
