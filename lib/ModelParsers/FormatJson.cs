@@ -14,6 +14,7 @@ namespace TRoschinsky.SPDataModel.Lib.ModelParsers
         {
             Name = "System: Deserializes model from JSON string";
             InputType = typeof(string);
+            RelatedModelGenerator = typeof(ModelGenerators.FormatJson);
             CanReadFromFile = true;
             Parse();
         }
@@ -21,6 +22,8 @@ namespace TRoschinsky.SPDataModel.Lib.ModelParsers
         {
             Name = "System: Deserializes model from JSON file";
             InputType = typeof(string);
+            RelatedModelGenerator = typeof(ModelGenerators.FormatJson);
+            CanReadFromFile = true;
             Parse();
         }
 
@@ -34,8 +37,9 @@ namespace TRoschinsky.SPDataModel.Lib.ModelParsers
 
             try
             {
+                
                 JsonSerializerOptions options = new JsonSerializerOptions();
-                options.WriteIndented = true;
+                options.Converters.Add(new FieldSerializationConverter());
                 options.NumberHandling = System.Text.Json.Serialization.JsonNumberHandling.AllowNamedFloatingPointLiterals;
                 options.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.Preserve;
                 ModelExport deserializedModel = JsonSerializer.Deserialize(Input as string, typeof(ModelExport), options) as ModelExport;

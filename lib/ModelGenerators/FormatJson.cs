@@ -15,6 +15,7 @@ namespace TRoschinsky.SPDataModel.Lib.ModelGenerators
         {
             Name = "System: Serializes model to JSON";
             OutputType = typeof(string);
+            RelatedModelParser = typeof(ModelParsers.FormatJson);
             CanSaveToFile = true;
             Generate();
         }
