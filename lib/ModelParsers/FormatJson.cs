@@ -36,8 +36,7 @@ namespace TRoschinsky.SPDataModel.Lib.ModelParsers
             }
 
             try
-            {
-                
+            {                
                 JsonSerializerOptions options = new JsonSerializerOptions();
                 options.Converters.Add(new FieldSerializationConverter());
                 options.NumberHandling = System.Text.Json.Serialization.JsonNumberHandling.AllowNamedFloatingPointLiterals;

@@ -64,8 +64,13 @@ namespace TRoschinsky.SPDataModel.Lib
                         TypeOfField.DateTime => new FieldDateTime(displayName, internalName),
                         TypeOfField.Number => new FieldNumber(displayName, internalName),
                         TypeOfField.Lookup => new FieldLookup(displayName, internalName, String.Empty),
-                        TypeOfField.User => new FieldUser(displayName, internalName, ((int)fieldData["UserSelectionMode"]) == 1 ? true : false, ""),                        
-                        TypeOfField.Url => new FieldUrl(displayName, internalName) { IsHyperlink = (bool)fieldData["IsHyperlink"] },
+                        TypeOfField.User => new FieldUser(displayName, internalName, (fieldData.ContainsKey("UserSelectionMode") && ((int)fieldData["UserSelectionMode"] == 1)) ? true : false, ""),                        
+                        TypeOfField.Url => new FieldUrl(displayName, internalName) { IsHyperlink = !fieldData.ContainsKey("IsHyperlink") || (bool)fieldData["IsHyperlink"] },
+                        // TODO: Handle non relevant files
+                        TypeOfField.System => new FieldText(displayName, internalName),
+                        TypeOfField.Complex => new FieldText(displayName, internalName),
+                        TypeOfField.File => new FieldText(displayName, internalName),
+                        TypeOfField.Undefined => new FieldText(displayName, internalName),
                         _ => throw new JsonException("Second element property value is expected to match a supported field type.")
                     };
 
@@ -105,11 +110,12 @@ namespace TRoschinsky.SPDataModel.Lib
                     }
                     else if(propertyName.Equals("RelationshipDeleteBehavior"))
                     {
+                        // TODO: Handle RelationshipDeleteBehavior
                         fieldData.Add(propertyName, reader.GetBoolean());
                     }
                     else if(propertyName.Equals("Choices"))
                     {
-                        
+                        // TODO: Handle choices
                     }
                     else if(reader.TokenType == JsonTokenType.StartObject) 
                     {
@@ -129,36 +135,21 @@ namespace TRoschinsky.SPDataModel.Lib
                         reader.Read();
                         relationProperties.Add(propertyName, reader.GetBoolean());
 
-
-
                         Relation relation = new Relation(
                             relationProperties["LookupFromEntityName"] as string, 
                             relationProperties["LookupToEntityName"] as string) { 
                             IsMultiLookup = (bool)relationProperties["IsMultiLookup"] };
                         fieldData.Add(objectName, relation);
+
+                        while(reader.TokenType != JsonTokenType.EndObject)
+                        {
+                            reader.Read();
+                        }
                     }
                     else 
                     {
                         fieldData.Add(propertyName, reader.GetString());
                     }
-
-                    /*
-                    switch (propertyName)
-                    {
-                        case "CreditLimit":
-                            decimal creditLimit = reader.GetDecimal();
-                            ((Customer)person).CreditLimit = creditLimit;
-                            break;
-                        case "OfficeNumber":
-                            string officeNumber = reader.GetString();
-                            ((Employee)person).OfficeNumber = officeNumber;
-                            break;
-                        case "Name":
-                            string name = reader.GetString();
-                            person.Name = name;
-                            break;
-                    }
-                    */
                 }
             }
 
